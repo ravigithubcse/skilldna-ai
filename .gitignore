@@ -1,0 +1,69 @@
+# Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+
+# Gradle
+.gradle/
+build/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Node
+node_modules/
+dist/
+.npm
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+
+# Docker
+*.env
+.env.local
+.env.production
+
+# Kubernetes secrets
+*-secret.yaml
+
+# Terraform
+*.tfstate
+*.tfstate.backup
+.terraform/
+*.tfvars
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
+jacoco.exec
+
+# Test
+surefire-reports/
