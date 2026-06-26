@@ -39,26 +39,71 @@ SkillDNA AI creates a **living AI digital twin of your career** — a dynamic mo
 
 ## 🏗️ Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      Clients (Web / Mobile)                  │
-└─────────────────────────┬───────────────────────────────────┘
-                          │ HTTPS
-┌─────────────────────────▼───────────────────────────────────┐
-│          API Gateway :8080  (Spring Cloud Gateway)           │
-│          JWT validation · CORS · Rate limiting · Routing     │
-└──┬──────────┬──────────┬──────────┬──────────┬─────────────┘
-   │          │          │          │          │
-:8081      :8082      :8083      :8084      :8085  :8086  :8087
-User    CareerTwin  Prediction Simulation JobMarket Learning Notif
- │           │
-PG-users  PG-twin        ← PostgreSQL 16
-             │
-         Redis 7 ←──────────────── All services share Redis cache
-             │
-         Kafka 3.6 ←────────────── Async event streaming bus
+```mermaid
+flowchart TB
+    Client["🌐 Clients
+Web · Mobile"]
+
+    subgraph GW["🔀 API Gateway  :8080"]
+        G1["JWT Validation · CORS · Rate Limiting · Routing"]
+    end
+
+    subgraph SVC["☕ Spring Boot Microservices  (Java 21)"]
+        direction LR
+        S1["👤 User Svc
+:8081"]
+        S2["🧬 CareerTwin Svc
+:8082"]
+        S3["🔮 Prediction Svc
+:8083"]
+        S4["🎮 Simulation Svc
+:8084"]
+        S5["💼 JobMarket Svc
+:8085"]
+        S6["📚 Learning Svc
+:8086"]
+        S7["🔔 Notif Svc
+:8087"]
+    end
+
+    subgraph DATA["🗄️ Data & Messaging Layer"]
+        D1["🐘 PostgreSQL 16
+Users DB"]
+        D2["🐘 PostgreSQL 16
+CareerTwin DB"]
+        D3["⚡ Redis 7
+Shared Cache"]
+        D4["📨 Apache Kafka 3.6
+Async Event Bus"]
+    end
+
+    Client --> GW --> S1 & S2 & S3 & S4 & S5 & S6 & S7
+    S1 <--> D1
+    S2 <--> D2
+    S1 & S2 & S3 & S4 & S5 & S6 & S7 <--> D3
+    S2 & S3 & S5 & S7 <-->|Events| D4
+
+    classDef client fill:#0d47a1,stroke:#42a5f5,color:#e3f2fd
+    classDef gw fill:#1a237e,stroke:#7986cb,color:#e8eaf6
+    classDef svc fill:#1b5e20,stroke:#66bb6a,color:#e8f5e9
+    classDef data fill:#3e2723,stroke:#ff8a65,color:#fbe9e7
+    class Client client
+    class G1 gw
+    class S1,S2,S3,S4,S5,S6,S7 svc
+    class D1,D2,D3,D4 data
 ```
 
+**Request Flow:**
+1. Web/Mobile clients send all requests to the **API Gateway** (Spring Cloud Gateway :8080)
+2. Gateway validates JWT tokens, enforces rate limits, and routes to the correct microservice
+3. **User Service** handles registration, authentication, and profile management (PostgreSQL users DB)
+4. **CareerTwin Service** builds the AI digital twin from skills, experience, and assessments (PostgreSQL twin DB)
+5. **Prediction Service** runs ML models to forecast career trajectories and upskilling paths
+6. **JobMarket Service** ingests real-time job postings and maps them to twin skill gaps via Kafka events
+7. **Simulation Service** lets users run "what-if" career simulations without affecting their real twin
+8. All 8 services share **Redis 7** for session caching, and async events flow over **Kafka 3.6**
+
+---
 ---
 
 ## 🚀 Quick Start
